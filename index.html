@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Roadmap — 8 Weeks to AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a08;
+    --surface: #111110;
+    --surface2: #1a1a18;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede6;
+    --muted: #7a7870;
+    --accent: #c8f542;
+    --accent2: #42c8f5;
+    --accent3: #f5a842;
+    --accent4: #c542f5;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Instrument Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,8,0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200,245,66,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid rgba(200,245,66,0.3);
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+    display: inline-block;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 1.0;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--muted), transparent);
+    animation: scrollAnim 1.5s ease-in-out infinite;
+  }
+
+  /* ── PHASES BAR ── */
+  .phases-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding: 0 3rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    scrollbar-width: none;
+  }
+  .phases-bar::-webkit-scrollbar { display: none; }
+
+  .phase-tab {
+    padding: 1rem 1.5rem;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    letter-spacing: 0.05em;
+  }
+
+  .phase-tab:hover { color: var(--text); }
+  .phase-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── WEEKS ── */
+  .weeks-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 3rem;
+  }
+
+  .phase-group { margin-bottom: 5rem; }
+
+  .phase-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .phase-label-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .phase-label-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .weeks-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .week-card {
+    background: var(--surface);
+    padding: 2rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .week-card:hover { background: var(--surface2); }
+
+  .week-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .week-card:hover::after { opacity: 1; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .week-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .week-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+
+  .card-title {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .topics {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .topics li {
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    opacity: 0.8;
+  }
+
+  .topic-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .project-box {
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .project-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .project-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .project-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .resources-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 1rem;
+  }
+
+  .resource-chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline-section {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 5rem 3rem;
+  }
+
+  .section-heading {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-heading h2 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-heading p {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .timeline {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border2);
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .tl-dot {
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
+    border: 1px solid var(--border2);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .tl-content {
+    flex: 1;
+    padding-top: 6px;
+  }
+
+  .tl-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .tl-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  footer p {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollAnim {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    .hero-stats { gap: 2rem; }
+    .weeks-section { padding: 3rem 1.5rem; }
+    .weeks-row { grid-template-columns: 1fr; }
+    .phases-bar { padding: 0 1rem; }
+    .timeline-section { padding: 3rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">AI.ROADMAP</a>
+  <ul class="nav-links">
+    <li><a href="#weeks">Curriculum</a></li>
+    <li><a href="#timeline">Timeline</a></li>
+    <li><a href="#hosting">Hosting</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">For CS Graduates</div>
+  <h1 class="hero-title">8 Weeks to<br><em>AI Mastery</em></h1>
+  <p class="hero-sub">A structured, project-driven curriculum to take you from classical ML to production-ready LLMs. No fluff, just depth.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">8</span>
+      <span class="stat-label">Weeks</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">8</span>
+      <span class="stat-label">Projects</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Phases</span>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- PHASES NAV -->
+<div class="phases-bar" id="phases-bar">
+  <button class="phase-tab active" onclick="scrollToPhase('phase-0')">Foundations</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-1')">Deep Learning</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-2')">NLP & Transformers</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-3')">MLOps & Production</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-4')">Capstone</button>
+</div>
+
+<!-- WEEKS -->
+<section class="weeks-section" id="weeks">
+
+  <!-- PHASE 1 -->
+  <div class="phase-group" id="phase-0">
+    <div class="phase-label">
+      <span class="phase-label-text">Phase 01 — Foundations</span>
+      <div class="phase-label-line"></div>
+    </div>
+    <div class="weeks-row">
+
+      <div class="week-card" style="--card-accent: var(--accent2)">
+        <div class="card-top">
+          <span class="week-num">WEEK 01</span>
+          <span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Math</span>
+        </div>
+        <h2 class="card-title">Math & ML Fundamentals</h2>
+        <p class="card-desc">Refresh the math you need — most CS grads know it, but AI applies it differently.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Linear algebra: matrix ops, eigenvalues, SVD</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Probability & stats: Bayes, distributions, MLE</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Calculus recap: gradients, chain rule, Jacobians</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Intro to loss functions & optimization</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Implement gradient descent from scratch in NumPy</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">3Blue1Brown</span>
+          <span class="resource-chip">StatQuest</span>
+          <span class="resource-chip">Khan Academy</span>
+        </div>
+      </div>
+
+      <div class="week-card" style="--card-accent: var(--accent2)">
+        <div class="card-top">
+          <span class="week-num">WEEK 02</span>
+          <span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Classical ML</span>
+        </div>
+        <h2 class="card-title">Classical ML & scikit-learn</h2>
+        <p class="card-desc">Core algorithms you'll reason about even when using deep learning.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Supervised: linear/logistic regression, SVMs, trees</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Unsupervised: k-means, PCA, DBSCAN</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Evaluation: cross-val, ROC, bias-variance tradeoff</li>
+          <li><span class="topic-dot" style="background:var(--accent2)"></span>Feature engineering & pipelines</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Titanic or housing price prediction end-to-end</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">Hands-On ML (Géron)</span>
+          <span class="resource-chip">scikit-learn docs</span>
+          <span class="resource-chip">Kaggle Learn</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-group" id="phase-1">
+    <div class="phase-label">
+      <span class="phase-label-text">Phase 02 — Deep Learning</span>
+      <div class="phase-label-line"></div>
+    </div>
+    <div class="weeks-row">
+
+      <div class="week-card" style="--card-accent: var(--accent)">
+        <div class="card-top">
+          <span class="week-num">WEEK 03</span>
+          <span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Neural Nets</span>
+        </div>
+        <h2 class="card-title">Neural Networks & PyTorch</h2>
+        <p class="card-desc">Build intuition for how deep networks actually work, then implement them.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Perceptrons → MLPs → backprop in detail</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Activations, weight init, batch norm, dropout</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>PyTorch: tensors, autograd, nn.Module</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Training loops, optimizers (Adam, SGD)</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Build an MLP classifier on MNIST without high-level APIs</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">fast.ai Part 1</span>
+          <span class="resource-chip">PyTorch docs</span>
+          <span class="resource-chip">Karpathy's YouTube</span>
+        </div>
+      </div>
+
+      <div class="week-card" style="--card-accent: var(--accent)">
+        <div class="card-top">
+          <span class="week-num">WEEK 04</span>
+          <span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Vision</span>
+        </div>
+        <h2 class="card-title">CNNs & Computer Vision</h2>
+        <p class="card-desc">Convolutional networks are the gateway to understanding modern architectures.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Convolutions, pooling, receptive fields</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Classic architectures: VGG, ResNet, EfficientNet</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Transfer learning & fine-tuning</li>
+          <li><span class="topic-dot" style="background:var(--accent)"></span>Object detection intro: YOLO, Faster R-CNN</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Fine-tune ResNet on a custom image dataset (10 classes)</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">CS231n (Stanford)</span>
+          <span class="resource-chip">torchvision</span>
+          <span class="resource-chip">Papers With Code</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-group" id="phase-2">
+    <div class="phase-label">
+      <span class="phase-label-text">Phase 03 — NLP & Transformers</span>
+      <div class="phase-label-line"></div>
+    </div>
+    <div class="weeks-row">
+
+      <div class="week-card" style="--card-accent: var(--accent4)">
+        <div class="card-top">
+          <span class="week-num">WEEK 05</span>
+          <span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">Transformers</span>
+        </div>
+        <h2 class="card-title">Transformers & Attention</h2>
+        <p class="card-desc">The architecture behind every major AI breakthrough since 2017.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>RNNs/LSTMs → attention mechanism</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>Transformer: Q/K/V, multi-head attention</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>Positional encoding, layer norm, FFN blocks</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>BERT vs GPT-style (encoder vs decoder)</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Code a mini transformer (character-level language model)</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">Attention Is All You Need</span>
+          <span class="resource-chip">Illustrated Transformer</span>
+          <span class="resource-chip">Karpathy's makemore</span>
+        </div>
+      </div>
+
+      <div class="week-card" style="--card-accent: var(--accent4)">
+        <div class="card-top">
+          <span class="week-num">WEEK 06</span>
+          <span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">LLMs</span>
+        </div>
+        <h2 class="card-title">LLMs, Fine-Tuning & Prompting</h2>
+        <p class="card-desc">Learn to work with large language models — the current frontier.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>Pretraining, RLHF, instruction tuning overview</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>Hugging Face: tokenizers, pipelines, Trainer</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>LoRA & QLoRA fine-tuning on consumer GPU</li>
+          <li><span class="topic-dot" style="background:var(--accent4)"></span>Prompt engineering & RAG</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Fine-tune Mistral-7B on a domain Q&A dataset with LoRA</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">Hugging Face course</span>
+          <span class="resource-chip">LangChain docs</span>
+          <span class="resource-chip">Sebastian Raschka</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-group" id="phase-3">
+    <div class="phase-label">
+      <span class="phase-label-text">Phase 04 — MLOps & Production</span>
+      <div class="phase-label-line"></div>
+    </div>
+    <div class="weeks-row">
+
+      <div class="week-card" style="--card-accent: var(--accent3)">
+        <div class="card-top">
+          <span class="week-num">WEEK 07</span>
+          <span class="week-badge" style="background:rgba(245,168,66,0.1);color:var(--accent3)">MLOps</span>
+        </div>
+        <h2 class="card-title">MLOps & Model Deployment</h2>
+        <p class="card-desc">Production ML differs radically from notebook ML. Learn the gap.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:var(--accent3)"></span>Experiment tracking: MLflow / Weights & Biases</li>
+          <li><span class="topic-dot" style="background:var(--accent3)"></span>Model serving: FastAPI, TorchServe, vLLM</li>
+          <li><span class="topic-dot" style="background:var(--accent3)"></span>Docker + basic Kubernetes for ML workloads</li>
+          <li><span class="topic-dot" style="background:var(--accent3)"></span>Monitoring, drift detection, retraining pipelines</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">⚡</span>
+          <div>
+            <p class="project-label">Weekly Project</p>
+            <p class="project-text">Deploy your Week 6 model as a REST API with a simple frontend</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">Made With ML</span>
+          <span class="resource-chip">Full Stack Deep Learning</span>
+          <span class="resource-chip">W&B docs</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase-group" id="phase-4">
+    <div class="phase-label">
+      <span class="phase-label-text">Phase 05 — Specialization & Capstone</span>
+      <div class="phase-label-line"></div>
+    </div>
+    <div class="weeks-row">
+
+      <div class="week-card" style="--card-accent: #f54242">
+        <div class="card-top">
+          <span class="week-num">WEEK 08</span>
+          <span class="week-badge" style="background:rgba(245,66,66,0.1);color:#f54242">Capstone</span>
+        </div>
+        <h2 class="card-title">Capstone & Specialization</h2>
+        <p class="card-desc">Consolidate, publish, and pick your track — research, applied, or product.</p>
+        <ul class="topics">
+          <li><span class="topic-dot" style="background:#f54242"></span>Choose a track: generative AI / CV / RL / AI safety</li>
+          <li><span class="topic-dot" style="background:#f54242"></span>Polish 2–3 projects for GitHub + write-ups</li>
+          <li><span class="topic-dot" style="background:#f54242"></span>Kaggle competition or open-source contribution</li>
+          <li><span class="topic-dot" style="background:#f54242"></span>Read 3 seminal papers in your chosen area</li>
+        </ul>
+        <div class="project-box">
+          <span class="project-icon">🏆</span>
+          <div>
+            <p class="project-label">Capstone Project</p>
+            <p class="project-text">A project you'd be proud to show in interviews</p>
+          </div>
+        </div>
+        <div class="resources-row">
+          <span class="resource-chip">arXiv cs.LG / cs.CL</span>
+          <span class="resource-chip">Kaggle</span>
+          <span class="resource-chip">Papers With Code</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-section" id="timeline">
+  <div class="section-heading">
+    <h2>Weekly timeline</h2>
+    <p>How to structure each week for maximum retention</p>
+  </div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="tl-dot" style="border-color:var(--accent);color:var(--accent)">M</div>
+      <div class="tl-content">
+        <p class="tl-title">Monday — Concepts</p>
+        <p class="tl-desc">Watch lectures, read the theory. No coding yet. Take handwritten notes.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-dot" style="border-color:var(--accent2);color:var(--accent2)">T</div>
+      <div class="tl-content">
+        <p class="tl-title">Tuesday — Implement</p>
+        <p class="tl-desc">Code the core algorithm from scratch. Resist using high-level wrappers.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-dot" style="border-color:var(--accent4);color:var(--accent4)">W</div>
+      <div class="tl-content">
+        <p class="tl-title">Wednesday — Experiment</p>
+        <p class="tl-desc">Break things. Change hyperparams, swap architectures, read error messages.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-dot" style="border-color:var(--accent3);color:var(--accent3)">T</div>
+      <div class="tl-content">
+        <p class="tl-title">Thursday — Paper</p>
+        <p class="tl-desc">Read one seminal paper related to the week's topic. Even 60% comprehension compounds fast.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-dot">F</div>
+      <div class="tl-content">
+        <p class="tl-title">Friday — Project</p>
+        <p class="tl-desc">Complete the week's project. Push to GitHub. Write a one-paragraph summary.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-dot">S</div>
+      <div class="tl-content">
+        <p class="tl-title">Weekend — Review & explore</p>
+        <p class="tl-desc">Catch up on anything missed. Browse arXiv, watch a talk, or start the next week's pre-reading.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOSTING -->
+<section class="weeks-section" id="hosting">
+  <div class="section-heading" style="text-align:left; margin-bottom: 2rem;">
+    <h2 style="font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);color:var(--text);margin-bottom:0.5rem">Host this site</h2>
+    <p style="font-size:14px;color:var(--muted)">Three ways to get it live in minutes</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+
+    <div style="background:var(--surface);padding:2rem;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:0.15em;margin-bottom:1rem">EASIEST · FREE</div>
+      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">GitHub Pages</h3>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Push to a repo, enable Pages in settings. Done. Custom domain support included.</p>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent2);line-height:2">
+        git init<br>
+        git add index.html<br>
+        git commit -m "init"<br>
+        git push origin main
+      </div>
+    </div>
+
+    <div style="background:var(--surface);padding:2rem;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent3);letter-spacing:0.15em;margin-bottom:1rem">FASTEST · FREE</div>
+      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">Netlify Drop</h3>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Drag and drop the folder at netlify.com/drop. Live URL in under 10 seconds. No account needed.</p>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent3);line-height:2">
+        1. Go to netlify.com/drop<br>
+        2. Drag your folder<br>
+        3. Copy the live URL
+      </div>
+    </div>
+
+    <div style="background:var(--surface);padding:2rem;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent4);letter-spacing:0.15em;margin-bottom:1rem">BEST DX · FREE TIER</div>
+      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">Vercel CLI</h3>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Deploy from terminal with one command. Auto HTTPS, global CDN, preview URLs on every push.</p>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent4);line-height:2">
+        npm i -g vercel<br>
+        vercel login<br>
+        vercel --prod
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Built for CS graduates ready to go deep on AI. <span>Good luck.</span></p>
+</footer>
+
+<script>
+  function scrollToPhase(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  // Sticky phases bar highlight on scroll
+  const groups = document.querySelectorAll('.phase-group');
+  const tabs = document.querySelectorAll('.phase-tab');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(groups).indexOf(entry.target);
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tabs[idx]) tabs[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  groups.forEach(g => observer.observe(g));
+</script>
+
+</body>
+</html>
