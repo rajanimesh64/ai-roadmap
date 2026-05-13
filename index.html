@@ -7,968 +7,938 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0a0a08;
-    --surface: #111110;
-    --surface2: #1a1a18;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #f0ede6;
-    --muted: #7a7870;
-    --accent: #c8f542;
-    --accent2: #42c8f5;
-    --accent3: #f5a842;
-    --accent4: #c542f5;
+    --bg: #0a0a08; --surface: #111110; --surface2: #1a1a18;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --text: #f0ede6; --muted: #7a7870;
+    --accent: #c8f542; --accent2: #42c8f5; --accent3: #f5a842; --accent4: #c542f5;
     --serif: 'DM Serif Display', Georgia, serif;
     --sans: 'Instrument Sans', sans-serif;
     --mono: 'DM Mono', monospace;
   }
-
   html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-  /* ── GRID NOISE TEXTURE ── */
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
+
+  /* ── SETUP OVERLAY ── */
+  #setup-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(10,10,8,0.97); backdrop-filter: blur(16px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .setup-card {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 3rem 2.5rem; max-width: 540px; width: 100%;
+  }
+  .setup-tag { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid rgba(200,245,66,0.3); padding: 4px 14px; border-radius: 100px; display: inline-block; margin-bottom: 1.5rem; }
+  .setup-title { font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem; line-height: 1.15; }
+  .setup-title em { font-style: italic; color: var(--accent); }
+  .setup-desc { font-size: 13px; color: var(--muted); margin-bottom: 2rem; line-height: 1.7; }
+
+  .setup-steps { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
+  .step { display: flex; gap: 1rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+  .step-body { flex: 1; }
+  .step-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .step-desc a { color: var(--accent2); text-decoration: none; }
+  .step-desc a:hover { text-decoration: underline; }
+  .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; color: var(--accent3); }
+
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; }
+  .config-field { display: flex; flex-direction: column; gap: 5px; }
+  .config-field.full { grid-column: 1 / -1; }
+  .config-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+  .config-input {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 9px 12px; font-family: var(--mono);
+    font-size: 11px; color: var(--text); outline: none;
+    transition: border-color 0.2s; width: 100%;
+  }
+  .config-input:focus { border-color: rgba(200,245,66,0.4); }
+  .config-input::placeholder { color: #3a3830; }
+
+  .save-btn {
+    width: 100%; margin-top: 1.5rem; padding: 13px;
+    background: var(--accent); border: none; border-radius: 10px;
+    font-family: var(--mono); font-size: 13px; color: #0a0a08;
+    font-weight: 500; cursor: pointer; letter-spacing: 0.05em;
+    transition: opacity 0.2s;
+  }
+  .save-btn:hover { opacity: 0.88; }
+  .skip-btn {
+    width: 100%; margin-top: 0.75rem; padding: 10px;
+    background: none; border: 1px solid var(--border2); border-radius: 10px;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    cursor: pointer; letter-spacing: 0.05em; transition: color 0.2s, border-color 0.2s;
+  }
+  .skip-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+  .setup-note { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; margin-top: 1rem; line-height: 1.6; }
+
+  /* ── AUTH PANEL (login screen once Firebase is ready) ── */
+  #auth-overlay {
+    position: fixed; inset: 0; z-index: 998;
+    background: rgba(10,10,8,0.97); backdrop-filter: blur(16px);
+    display: none; align-items: center; justify-content: center;
+  }
+  #auth-overlay.active { display: flex; }
+  .auth-card {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 3rem 2.5rem; max-width: 380px; width: 90%; text-align: center;
+  }
+  .auth-logo { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 2rem; }
+  .auth-title { font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem; }
+  .auth-title em { font-style: italic; color: var(--accent); }
+  .auth-sub { font-size: 13px; color: var(--muted); margin-bottom: 2rem; line-height: 1.6; }
+
+  .google-btn {
+    width: 100%; padding: 13px 20px; background: #fff; border: none; border-radius: 10px;
+    font-family: var(--sans); font-size: 14px; font-weight: 500; color: #1a1a1a;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 10px; transition: opacity 0.2s; margin-bottom: 1rem;
+  }
+  .google-btn:hover { opacity: 0.9; }
+  .google-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 1rem 0; }
+  .auth-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .auth-divider-text { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  .email-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 12px 16px; font-family: var(--sans);
+    font-size: 14px; color: var(--text); outline: none; margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .email-input:focus { border-color: rgba(200,245,66,0.4); }
+  .email-input::placeholder { color: var(--muted); }
+  .email-btn {
+    width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 10px; font-family: var(--mono); font-size: 12px; color: var(--text);
+    cursor: pointer; transition: background 0.2s, border-color 0.2s; letter-spacing: 0.05em;
+  }
+  .email-btn:hover { background: var(--surface); border-color: rgba(255,255,255,0.25); }
+  .auth-msg { font-family: var(--mono); font-size: 11px; margin-top: 1rem; padding: 10px; border-radius: 8px; display: none; }
+  .auth-msg.success { background: rgba(200,245,66,0.1); color: var(--accent); border: 1px solid rgba(200,245,66,0.2); display: block; }
+  .auth-msg.error { background: rgba(245,66,66,0.1); color: #f54242; border: 1px solid rgba(245,66,66,0.2); display: block; }
 
   /* ── NAV ── */
   nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 3rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,10,8,0.85);
-    backdrop-filter: blur(12px);
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; gap: 2rem;
+    padding: 1rem 3rem; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,8,0.92); backdrop-filter: blur(12px);
   }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-size: 13px;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.03em;
-    transition: color 0.2s;
-  }
-
+  .nav-logo { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: 0.1em; text-decoration: none; flex-shrink: 0; }
+  .nav-progress { flex: 1; max-width: 280px; display: flex; flex-direction: column; gap: 5px; }
+  .nav-progress-labels { display: flex; justify-content: space-between; }
+  .progress-label-text { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+  .progress-label-pct { font-family: var(--mono); font-size: 10px; color: var(--accent); }
+  .progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s ease; width: 0%; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 1.25rem; flex-shrink: 0; }
+  .nav-avatar { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; border: 1px solid var(--border2); flex-shrink: 0; }
+  .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .nav-avatar-initials { width: 30px; height: 30px; border-radius: 50%; background: rgba(200,245,66,0.15); border: 1px solid rgba(200,245,66,0.25); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--accent); flex-shrink: 0; }
+  .nav-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .nav-name span { color: var(--text); }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+  .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
   .nav-links a:hover { color: var(--text); }
+  .sign-out-btn { font-family: var(--mono); font-size: 10px; color: var(--muted); background: none; border: 1px solid var(--border2); padding: 4px 12px; border-radius: 100px; cursor: pointer; transition: color 0.2s; letter-spacing: 0.05em; }
+  .sign-out-btn:hover { color: #f54242; border-color: rgba(245,66,66,0.35); }
+
+  /* ── SYNC STATUS ── */
+  .sync-status { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50; font-family: var(--mono); font-size: 11px; padding: 8px 16px; border-radius: 100px; display: flex; align-items: center; gap: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .sync-status.show { opacity: 1; }
+  .sync-status.saving { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); }
+  .sync-status.saved { background: rgba(200,245,66,0.12); border: 1px solid rgba(200,245,66,0.25); color: var(--accent); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .saving .sync-dot { background: var(--muted); animation: blink 0.8s ease-in-out infinite; }
+  .saved .sync-dot { background: var(--accent); }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 
   /* ── HERO ── */
-  .hero {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 8rem 2rem 4rem;
-    overflow: hidden;
-  }
-
-  .hero-glow {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(200,245,66,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hero-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    border: 1px solid rgba(200,245,66,0.3);
-    padding: 5px 16px;
-    border-radius: 100px;
-    margin-bottom: 2rem;
-    display: inline-block;
-    animation: fadeUp 0.6s ease both;
-  }
-
-  .hero-title {
-    font-family: var(--serif);
-    font-size: clamp(3.5rem, 8vw, 7rem);
-    line-height: 1.0;
-    color: var(--text);
-    margin-bottom: 1.5rem;
-    animation: fadeUp 0.6s 0.1s ease both;
-  }
-
-  .hero-title em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .hero-sub {
-    font-size: 1.1rem;
-    color: var(--muted);
-    max-width: 520px;
-    line-height: 1.7;
-    margin-bottom: 3rem;
-    animation: fadeUp 0.6s 0.2s ease both;
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 3rem;
-    justify-content: center;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
-
+  .hero { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8rem 2rem 4rem; overflow: hidden; }
+  .hero-glow { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(200,245,66,0.08) 0%, transparent 70%); pointer-events: none; }
+  .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid rgba(200,245,66,0.3); padding: 5px 16px; border-radius: 100px; margin-bottom: 2rem; display: inline-block; animation: fadeUp 0.6s ease both; }
+  .hero-title { font-family: var(--serif); font-size: clamp(3.5rem, 8vw, 7rem); line-height: 1.0; color: var(--text); margin-bottom: 1.5rem; animation: fadeUp 0.6s 0.1s ease both; }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--muted); max-width: 520px; line-height: 1.7; margin-bottom: 2.5rem; animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-stats { display: flex; gap: 3rem; justify-content: center; animation: fadeUp 0.6s 0.3s ease both; margin-bottom: 3rem; }
   .stat { text-align: center; }
-  .stat-num {
-    font-family: var(--mono);
-    font-size: 2rem;
-    font-weight: 500;
-    color: var(--text);
-    display: block;
-  }
-  .stat-label {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
+  .stat-num { font-family: var(--mono); font-size: 2rem; font-weight: 500; color: var(--text); display: block; }
+  .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
 
-  .hero-scroll {
-    position: absolute;
-    bottom: 2.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    animation: fadeUp 0.6s 0.5s ease both;
-  }
-
-  .scroll-line {
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(to bottom, var(--muted), transparent);
-    animation: scrollAnim 1.5s ease-in-out infinite;
-  }
+  .hero-progress-widget { animation: fadeUp 0.6s 0.4s ease both; width: 100%; max-width: 480px; }
+  .hero-progress-ring-wrap { display: flex; align-items: center; justify-content: center; gap: 2.5rem; }
+  .ring-container { position: relative; width: 100px; height: 100px; }
+  .ring-container svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset 0.6s ease; }
+  .ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--mono); }
+  .ring-pct { font-size: 20px; font-weight: 500; color: var(--text); }
+  .ring-sub { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; }
+  .hero-week-stats { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .week-stat-row { display: flex; align-items: center; gap: 8px; }
+  .wsr-label { font-family: var(--mono); color: var(--muted); font-size: 10px; width: 52px; flex-shrink: 0; }
+  .wsr-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+  .wsr-bar-fill { height: 100%; border-radius: 100px; transition: width 0.4s ease; width: 0%; }
+  .wsr-count { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
+  .reset-btn { margin-top: 1rem; font-family: var(--mono); font-size: 10px; color: var(--muted); background: none; border: 1px solid var(--border2); border-radius: 100px; padding: 4px 14px; cursor: pointer; letter-spacing: 0.05em; transition: color 0.2s, border-color 0.2s; }
+  .reset-btn:hover { color: #f54242; border-color: rgba(245,66,66,0.4); }
+  .hero-scroll { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; letter-spacing: 0.1em; animation: fadeUp 0.6s 0.6s ease both; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--muted), transparent); animation: scrollAnim 1.5s ease-in-out infinite; }
 
   /* ── PHASES BAR ── */
-  .phases-bar {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    padding: 0 3rem;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    scrollbar-width: none;
-  }
+  .phases-bar { position: relative; z-index: 1; display: flex; overflow-x: auto; padding: 0 3rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); scrollbar-width: none; }
   .phases-bar::-webkit-scrollbar { display: none; }
-
-  .phase-tab {
-    padding: 1rem 1.5rem;
-    font-size: 12px;
-    font-family: var(--mono);
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    transition: all 0.2s;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    letter-spacing: 0.05em;
-  }
-
+  .phase-tab { padding: 1rem 1.5rem; font-size: 12px; font-family: var(--mono); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; letter-spacing: 0.05em; }
   .phase-tab:hover { color: var(--text); }
   .phase-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
   /* ── WEEKS ── */
-  .weeks-section {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 5rem 3rem;
-  }
-
+  .weeks-section { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 5rem 3rem; }
   .phase-group { margin-bottom: 5rem; }
-
-  .phase-label {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .phase-label-text {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .phase-label-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .weeks-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .week-card {
-    background: var(--surface);
-    padding: 2rem;
-    transition: background 0.2s;
-    cursor: pointer;
-    position: relative;
-  }
-
+  .phase-label { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .phase-label-text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .phase-label-line { flex: 1; height: 1px; background: var(--border); }
+  .weeks-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .week-card { background: var(--surface); padding: 2rem; transition: background 0.2s; position: relative; }
+  .week-card.completed { background: #0e190a; }
   .week-card:hover { background: var(--surface2); }
-
-  .week-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--card-accent, transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
+  .week-card.completed:hover { background: #121e0d; }
+  .week-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--card-accent, transparent); opacity: 0; transition: opacity 0.2s; }
   .week-card:hover::after { opacity: 1; }
-
-  .card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-  }
-
-  .week-num {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-  }
-
-  .week-badge {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 3px 10px;
-    border-radius: 100px;
-    letter-spacing: 0.05em;
-  }
-
-  .card-title {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    line-height: 1.2;
-    margin-bottom: 0.75rem;
-    color: var(--text);
-  }
-
-  .card-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 1.25rem;
-  }
-
-  .topics {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 1.5rem;
-  }
-
-  .topics li {
-    font-size: 13px;
-    color: var(--text);
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    opacity: 0.8;
-  }
-
-  .topic-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    margin-top: 7px;
-    flex-shrink: 0;
-  }
-
-  .project-box {
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .project-icon {
-    font-size: 18px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .project-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-  }
-
-  .project-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.4;
-  }
-
-  .resources-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 1rem;
-  }
-
-  .resource-chip {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 3px 10px;
-    border: 1px solid var(--border2);
-    border-radius: 100px;
-    color: var(--muted);
-    letter-spacing: 0.03em;
-  }
+  .week-card.completed::after { opacity: 1; background: var(--accent) !important; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
+  .card-top-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .week-num { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .week-badge { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em; }
+  .week-done-badge { display: none; font-family: var(--mono); font-size: 9px; padding: 3px 9px; border-radius: 100px; background: rgba(200,245,66,0.12); color: var(--accent); letter-spacing: 0.08em; border: 1px solid rgba(200,245,66,0.25); }
+  .week-card.completed .week-done-badge { display: inline-block; }
+  .card-title { font-family: var(--serif); font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.75rem; color: var(--text); }
+  .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; }
+  .week-mini-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+  .wmp-track { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+  .wmp-fill { height: 100%; border-radius: 100px; transition: width 0.3s ease; width: 0%; }
+  .wmp-label { font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .topics { list-style: none; display: flex; flex-direction: column; gap: 2px; margin-bottom: 1.5rem; }
+  .topics li { font-size: 13px; color: var(--text); display: flex; align-items: flex-start; gap: 10px; opacity: 0.85; transition: opacity 0.2s; padding: 4px 0; }
+  .topics li.checked { opacity: 0.4; }
+  .topics li.checked .topic-text { text-decoration: line-through; text-decoration-color: var(--muted); }
+  .task-cb { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; border: 1px solid var(--border2); border-radius: 4px; background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 2px; position: relative; transition: background 0.15s, border-color 0.15s; }
+  .task-cb:hover { border-color: rgba(255,255,255,0.4); }
+  .task-cb:checked { background: var(--accent); border-color: var(--accent); }
+  .task-cb:checked::after { content: ''; position: absolute; left: 3px; top: 1px; width: 6px; height: 9px; border: 2px solid #0a0a08; border-top: none; border-left: none; transform: rotate(42deg); }
+  .topic-text { line-height: 1.4; }
+  .project-box { border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; transition: border-color 0.2s, background 0.2s; cursor: pointer; user-select: none; }
+  .project-box:hover { border-color: rgba(255,255,255,0.25); }
+  .project-box.proj-done { border-color: rgba(200,245,66,0.35); background: rgba(200,245,66,0.04); }
+  .project-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+  .project-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .project-box.proj-done .project-text { text-decoration: line-through; text-decoration-color: var(--muted); opacity: 0.5; }
+  .resources-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+  .resource-chip { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border: 1px solid var(--border2); border-radius: 100px; color: var(--muted); letter-spacing: 0.03em; }
 
   /* ── TIMELINE ── */
-  .timeline-section {
-    position: relative;
-    z-index: 1;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 5rem 3rem;
-  }
+  .timeline-section { position: relative; z-index: 1; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5rem 3rem; }
+  .section-heading { text-align: center; margin-bottom: 3rem; }
+  .section-heading h2 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); color: var(--text); margin-bottom: 0.5rem; }
+  .section-heading p { font-size: 14px; color: var(--muted); }
+  .timeline { max-width: 800px; margin: 0 auto; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 16px; top: 0; bottom: 0; width: 1px; background: var(--border2); }
+  .timeline-item { display: flex; gap: 1.5rem; margin-bottom: 2rem; position: relative; }
+  .tl-dot { width: 33px; height: 33px; border-radius: 50%; border: 1px solid var(--border2); background: var(--bg); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; z-index: 1; }
+  .tl-content { flex: 1; padding-top: 6px; }
+  .tl-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .tl-desc { font-size: 13px; color: var(--muted); }
 
-  .section-heading {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .section-heading h2 {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--text);
-    margin-bottom: 0.5rem;
-  }
-
-  .section-heading p {
-    font-size: 14px;
-    color: var(--muted);
-  }
-
-  .timeline {
-    max-width: 800px;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 16px;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: var(--border2);
-  }
-
-  .timeline-item {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-  }
-
-  .tl-dot {
-    width: 33px;
-    height: 33px;
-    border-radius: 50%;
-    border: 1px solid var(--border2);
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    flex-shrink: 0;
-    z-index: 1;
-  }
-
-  .tl-content {
-    flex: 1;
-    padding-top: 6px;
-  }
-
-  .tl-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .tl-desc {
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 3rem;
-    border-top: 1px solid var(--border);
-  }
-
-  footer p {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
+  footer { position: relative; z-index: 1; text-align: center; padding: 3rem; border-top: 1px solid var(--border); }
+  footer p { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
   footer span { color: var(--accent); }
 
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scrollAnim { 0%,100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.2); } }
 
-  @keyframes scrollAnim {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(1.2); }
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     nav { padding: 1rem 1.5rem; }
     .nav-links { display: none; }
+    .nav-progress { max-width: 140px; }
     .hero { padding: 7rem 1.5rem 4rem; }
     .hero-stats { gap: 2rem; }
     .weeks-section { padding: 3rem 1.5rem; }
     .weeks-row { grid-template-columns: 1fr; }
     .phases-bar { padding: 0 1rem; }
     .timeline-section { padding: 3rem 1.5rem; }
+    .hero-progress-ring-wrap { flex-direction: column; gap: 1.5rem; }
+    .config-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
+<!-- ── STEP 1: FIREBASE SETUP OVERLAY ── -->
+<div id="setup-overlay">
+  <div class="setup-card">
+    <div class="setup-tag">One-time setup</div>
+    <h1 class="setup-title">Connect <em>Firebase</em></h1>
+    <p class="setup-desc">This gives every user their own account with progress saved in the cloud — accessible from any device. Takes about 5 minutes.</p>
+
+    <div class="setup-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <p class="step-title">Create a free Firebase project</p>
+          <p class="step-desc">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → New Project → any name → continue.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <p class="step-title">Enable Authentication & Firestore</p>
+          <p class="step-desc">In the sidebar: <code>Authentication → Sign-in method → Google → Enable</code>. Also enable <code>Email/Password</code>. Then go to <code>Firestore Database → Create database → Start in test mode</code>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <p class="step-title">Get your config</p>
+          <p class="step-desc">Go to <code>Project Settings → Your apps → Add web app</code>. Copy the <code>firebaseConfig</code> values and paste them below.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-field full">
+        <label class="config-label">API KEY</label>
+        <input class="config-input" id="cfg-apikey" placeholder="AIzaSy...">
+      </div>
+      <div class="config-field">
+        <label class="config-label">AUTH DOMAIN</label>
+        <input class="config-input" id="cfg-authdomain" placeholder="your-app.firebaseapp.com">
+      </div>
+      <div class="config-field">
+        <label class="config-label">PROJECT ID</label>
+        <input class="config-input" id="cfg-projectid" placeholder="your-app-id">
+      </div>
+      <div class="config-field full">
+        <label class="config-label">APP ID</label>
+        <input class="config-input" id="cfg-appid" placeholder="1:123456:web:abc...">
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveFirebaseConfig()">Connect Firebase & launch →</button>
+    <button class="skip-btn" onclick="skipToDemo()">Use offline mode (no cloud sync)</button>
+    <p class="setup-note">Config is saved in your browser — you only fill this in once.<br>Share the same config with all your users.</p>
+  </div>
+</div>
+
+<!-- ── STEP 2: AUTH OVERLAY ── -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">AI.ROADMAP</div>
+    <h1 class="auth-title">Sign <em>in</em></h1>
+    <p class="auth-sub">Your progress syncs across all your devices automatically.</p>
+
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="auth-divider">
+      <div class="auth-divider-line"></div>
+      <span class="auth-divider-text">OR</span>
+      <div class="auth-divider-line"></div>
+    </div>
+
+    <input class="email-input" id="auth-email" type="email" placeholder="your@email.com" autocomplete="email">
+    <input class="email-input" id="auth-password" type="password" placeholder="Password (min 6 chars)" autocomplete="current-password">
+    <button class="email-btn" onclick="signInEmail()">Sign in / Create account →</button>
+    <div class="auth-msg" id="auth-msg"></div>
+  </div>
+</div>
+
+<!-- ── SYNC INDICATOR ── -->
+<div class="sync-status" id="sync-status">
+  <span class="sync-dot"></span>
+  <span id="sync-text">Saving…</span>
+</div>
+
+<!-- ── NAV ── -->
 <nav>
   <a href="#" class="nav-logo">AI.ROADMAP</a>
-  <ul class="nav-links">
-    <li><a href="#weeks">Curriculum</a></li>
-    <li><a href="#timeline">Timeline</a></li>
-    <li><a href="#hosting">Hosting</a></li>
-  </ul>
+  <div class="nav-progress">
+    <div class="nav-progress-labels">
+      <span class="progress-label-text">MY PROGRESS</span>
+      <span class="progress-label-pct" id="nav-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="nav-fill"></div></div>
+  </div>
+  <div class="nav-right">
+    <div id="nav-avatar-wrap"></div>
+    <div class="nav-name" id="nav-name"></div>
+    <ul class="nav-links">
+      <li><a href="#weeks">Curriculum</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+    </ul>
+    <button class="sign-out-btn" id="signout-btn" onclick="signOut()" style="display:none">Sign out</button>
+  </div>
 </nav>
 
-<!-- HERO -->
+<!-- ── HERO ── -->
 <section class="hero">
   <div class="hero-glow"></div>
   <div class="hero-tag">For CS Graduates</div>
   <h1 class="hero-title">8 Weeks to<br><em>AI Mastery</em></h1>
   <p class="hero-sub">A structured, project-driven curriculum to take you from classical ML to production-ready LLMs. No fluff, just depth.</p>
   <div class="hero-stats">
-    <div class="stat">
-      <span class="stat-num">8</span>
-      <span class="stat-label">Weeks</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num">8</span>
-      <span class="stat-label">Projects</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num">4</span>
-      <span class="stat-label">Phases</span>
-    </div>
+    <div class="stat"><span class="stat-num">8</span><span class="stat-label">Weeks</span></div>
+    <div class="stat"><span class="stat-num">8</span><span class="stat-label">Projects</span></div>
+    <div class="stat"><span class="stat-num">4</span><span class="stat-label">Phases</span></div>
   </div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    SCROLL
+  <div class="hero-progress-widget">
+    <div class="hero-progress-ring-wrap">
+      <div class="ring-container">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="ring-bg" cx="50" cy="50" r="45"/>
+          <circle class="ring-fill" id="hero-ring" cx="50" cy="50" r="45"/>
+        </svg>
+        <div class="ring-text">
+          <span class="ring-pct" id="hero-pct">0%</span>
+          <span class="ring-sub">DONE</span>
+        </div>
+      </div>
+      <div class="hero-week-stats" id="hero-week-bars"></div>
+    </div>
+    <div style="text-align:center"><button class="reset-btn" onclick="resetAll()">↺ reset my progress</button></div>
   </div>
+  <div class="hero-scroll"><div class="scroll-line"></div>SCROLL</div>
 </section>
 
-<!-- PHASES NAV -->
-<div class="phases-bar" id="phases-bar">
-  <button class="phase-tab active" onclick="scrollToPhase('phase-0')">Foundations</button>
-  <button class="phase-tab" onclick="scrollToPhase('phase-1')">Deep Learning</button>
-  <button class="phase-tab" onclick="scrollToPhase('phase-2')">NLP & Transformers</button>
-  <button class="phase-tab" onclick="scrollToPhase('phase-3')">MLOps & Production</button>
-  <button class="phase-tab" onclick="scrollToPhase('phase-4')">Capstone</button>
+<!-- ── PHASES NAV ── -->
+<div class="phases-bar">
+  <button class="phase-tab active" onclick="scrollToPhase('phase-0',event)">Foundations</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-1',event)">Deep Learning</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-2',event)">NLP & Transformers</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-3',event)">MLOps & Production</button>
+  <button class="phase-tab" onclick="scrollToPhase('phase-4',event)">Capstone</button>
 </div>
 
-<!-- WEEKS -->
+<!-- ── WEEKS ── -->
 <section class="weeks-section" id="weeks">
 
-  <!-- PHASE 1 -->
   <div class="phase-group" id="phase-0">
-    <div class="phase-label">
-      <span class="phase-label-text">Phase 01 — Foundations</span>
-      <div class="phase-label-line"></div>
-    </div>
+    <div class="phase-label"><span class="phase-label-text">Phase 01 — Foundations</span><div class="phase-label-line"></div></div>
     <div class="weeks-row">
-
-      <div class="week-card" style="--card-accent: var(--accent2)">
-        <div class="card-top">
-          <span class="week-num">WEEK 01</span>
-          <span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Math</span>
-        </div>
+      <div class="week-card" id="wcard-1" style="--card-accent:var(--accent2)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 01</span><span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Math</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">Math & ML Fundamentals</h2>
         <p class="card-desc">Refresh the math you need — most CS grads know it, but AI applies it differently.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-1" style="background:var(--accent2)"></div></div><span class="wmp-label" id="wlabel-1">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Linear algebra: matrix ops, eigenvalues, SVD</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Probability & stats: Bayes, distributions, MLE</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Calculus recap: gradients, chain rule, Jacobians</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Intro to loss functions & optimization</li>
+          <li><input type="checkbox" class="task-cb" data-week="1" data-id="1-1"><span class="topic-text">Linear algebra: matrix ops, eigenvalues, SVD</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="1" data-id="1-2"><span class="topic-text">Probability & stats: Bayes, distributions, MLE</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="1" data-id="1-3"><span class="topic-text">Calculus recap: gradients, chain rule, Jacobians</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="1" data-id="1-4"><span class="topic-text">Intro to loss functions & optimization</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Implement gradient descent from scratch in NumPy</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">3Blue1Brown</span>
-          <span class="resource-chip">StatQuest</span>
-          <span class="resource-chip">Khan Academy</span>
-        </div>
+        <div class="project-box" id="proj-1" onclick="toggleProject(1)"><input type="checkbox" class="task-cb" data-week="1" data-id="1-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Implement gradient descent from scratch in NumPy</p></div></div>
+        <div class="resources-row"><span class="resource-chip">3Blue1Brown</span><span class="resource-chip">StatQuest</span><span class="resource-chip">Khan Academy</span></div>
       </div>
-
-      <div class="week-card" style="--card-accent: var(--accent2)">
-        <div class="card-top">
-          <span class="week-num">WEEK 02</span>
-          <span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Classical ML</span>
-        </div>
+      <div class="week-card" id="wcard-2" style="--card-accent:var(--accent2)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 02</span><span class="week-badge" style="background:rgba(66,200,245,0.1);color:var(--accent2)">Classical ML</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">Classical ML & scikit-learn</h2>
         <p class="card-desc">Core algorithms you'll reason about even when using deep learning.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-2" style="background:var(--accent2)"></div></div><span class="wmp-label" id="wlabel-2">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Supervised: linear/logistic regression, SVMs, trees</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Unsupervised: k-means, PCA, DBSCAN</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Evaluation: cross-val, ROC, bias-variance tradeoff</li>
-          <li><span class="topic-dot" style="background:var(--accent2)"></span>Feature engineering & pipelines</li>
+          <li><input type="checkbox" class="task-cb" data-week="2" data-id="2-1"><span class="topic-text">Supervised: linear/logistic regression, SVMs, trees</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="2" data-id="2-2"><span class="topic-text">Unsupervised: k-means, PCA, DBSCAN</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="2" data-id="2-3"><span class="topic-text">Evaluation: cross-val, ROC, bias-variance tradeoff</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="2" data-id="2-4"><span class="topic-text">Feature engineering & pipelines</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Titanic or housing price prediction end-to-end</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">Hands-On ML (Géron)</span>
-          <span class="resource-chip">scikit-learn docs</span>
-          <span class="resource-chip">Kaggle Learn</span>
-        </div>
+        <div class="project-box" id="proj-2" onclick="toggleProject(2)"><input type="checkbox" class="task-cb" data-week="2" data-id="2-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Titanic or housing price prediction end-to-end</p></div></div>
+        <div class="resources-row"><span class="resource-chip">Hands-On ML (Géron)</span><span class="resource-chip">scikit-learn docs</span><span class="resource-chip">Kaggle Learn</span></div>
       </div>
-
     </div>
   </div>
 
-  <!-- PHASE 2 -->
   <div class="phase-group" id="phase-1">
-    <div class="phase-label">
-      <span class="phase-label-text">Phase 02 — Deep Learning</span>
-      <div class="phase-label-line"></div>
-    </div>
+    <div class="phase-label"><span class="phase-label-text">Phase 02 — Deep Learning</span><div class="phase-label-line"></div></div>
     <div class="weeks-row">
-
-      <div class="week-card" style="--card-accent: var(--accent)">
-        <div class="card-top">
-          <span class="week-num">WEEK 03</span>
-          <span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Neural Nets</span>
-        </div>
+      <div class="week-card" id="wcard-3" style="--card-accent:var(--accent)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 03</span><span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Neural Nets</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">Neural Networks & PyTorch</h2>
         <p class="card-desc">Build intuition for how deep networks actually work, then implement them.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-3" style="background:var(--accent)"></div></div><span class="wmp-label" id="wlabel-3">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Perceptrons → MLPs → backprop in detail</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Activations, weight init, batch norm, dropout</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>PyTorch: tensors, autograd, nn.Module</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Training loops, optimizers (Adam, SGD)</li>
+          <li><input type="checkbox" class="task-cb" data-week="3" data-id="3-1"><span class="topic-text">Perceptrons → MLPs → backprop in detail</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="3" data-id="3-2"><span class="topic-text">Activations, weight init, batch norm, dropout</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="3" data-id="3-3"><span class="topic-text">PyTorch: tensors, autograd, nn.Module</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="3" data-id="3-4"><span class="topic-text">Training loops, optimizers (Adam, SGD)</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Build an MLP classifier on MNIST without high-level APIs</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">fast.ai Part 1</span>
-          <span class="resource-chip">PyTorch docs</span>
-          <span class="resource-chip">Karpathy's YouTube</span>
-        </div>
+        <div class="project-box" id="proj-3" onclick="toggleProject(3)"><input type="checkbox" class="task-cb" data-week="3" data-id="3-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Build an MLP classifier on MNIST without high-level APIs</p></div></div>
+        <div class="resources-row"><span class="resource-chip">fast.ai Part 1</span><span class="resource-chip">PyTorch docs</span><span class="resource-chip">Karpathy's YouTube</span></div>
       </div>
-
-      <div class="week-card" style="--card-accent: var(--accent)">
-        <div class="card-top">
-          <span class="week-num">WEEK 04</span>
-          <span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Vision</span>
-        </div>
+      <div class="week-card" id="wcard-4" style="--card-accent:var(--accent)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 04</span><span class="week-badge" style="background:rgba(200,245,66,0.1);color:var(--accent)">Vision</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">CNNs & Computer Vision</h2>
         <p class="card-desc">Convolutional networks are the gateway to understanding modern architectures.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-4" style="background:var(--accent)"></div></div><span class="wmp-label" id="wlabel-4">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Convolutions, pooling, receptive fields</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Classic architectures: VGG, ResNet, EfficientNet</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Transfer learning & fine-tuning</li>
-          <li><span class="topic-dot" style="background:var(--accent)"></span>Object detection intro: YOLO, Faster R-CNN</li>
+          <li><input type="checkbox" class="task-cb" data-week="4" data-id="4-1"><span class="topic-text">Convolutions, pooling, receptive fields</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="4" data-id="4-2"><span class="topic-text">Classic architectures: VGG, ResNet, EfficientNet</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="4" data-id="4-3"><span class="topic-text">Transfer learning & fine-tuning</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="4" data-id="4-4"><span class="topic-text">Object detection intro: YOLO, Faster R-CNN</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Fine-tune ResNet on a custom image dataset (10 classes)</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">CS231n (Stanford)</span>
-          <span class="resource-chip">torchvision</span>
-          <span class="resource-chip">Papers With Code</span>
-        </div>
+        <div class="project-box" id="proj-4" onclick="toggleProject(4)"><input type="checkbox" class="task-cb" data-week="4" data-id="4-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Fine-tune ResNet on a custom image dataset (10 classes)</p></div></div>
+        <div class="resources-row"><span class="resource-chip">CS231n (Stanford)</span><span class="resource-chip">torchvision</span><span class="resource-chip">Papers With Code</span></div>
       </div>
-
     </div>
   </div>
 
-  <!-- PHASE 3 -->
   <div class="phase-group" id="phase-2">
-    <div class="phase-label">
-      <span class="phase-label-text">Phase 03 — NLP & Transformers</span>
-      <div class="phase-label-line"></div>
-    </div>
+    <div class="phase-label"><span class="phase-label-text">Phase 03 — NLP & Transformers</span><div class="phase-label-line"></div></div>
     <div class="weeks-row">
-
-      <div class="week-card" style="--card-accent: var(--accent4)">
-        <div class="card-top">
-          <span class="week-num">WEEK 05</span>
-          <span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">Transformers</span>
-        </div>
+      <div class="week-card" id="wcard-5" style="--card-accent:var(--accent4)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 05</span><span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">Transformers</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">Transformers & Attention</h2>
         <p class="card-desc">The architecture behind every major AI breakthrough since 2017.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-5" style="background:var(--accent4)"></div></div><span class="wmp-label" id="wlabel-5">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>RNNs/LSTMs → attention mechanism</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>Transformer: Q/K/V, multi-head attention</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>Positional encoding, layer norm, FFN blocks</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>BERT vs GPT-style (encoder vs decoder)</li>
+          <li><input type="checkbox" class="task-cb" data-week="5" data-id="5-1"><span class="topic-text">RNNs/LSTMs → attention mechanism</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="5" data-id="5-2"><span class="topic-text">Transformer: Q/K/V, multi-head attention</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="5" data-id="5-3"><span class="topic-text">Positional encoding, layer norm, FFN blocks</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="5" data-id="5-4"><span class="topic-text">BERT vs GPT-style (encoder vs decoder)</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Code a mini transformer (character-level language model)</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">Attention Is All You Need</span>
-          <span class="resource-chip">Illustrated Transformer</span>
-          <span class="resource-chip">Karpathy's makemore</span>
-        </div>
+        <div class="project-box" id="proj-5" onclick="toggleProject(5)"><input type="checkbox" class="task-cb" data-week="5" data-id="5-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Code a mini transformer (character-level language model)</p></div></div>
+        <div class="resources-row"><span class="resource-chip">Attention Is All You Need</span><span class="resource-chip">Illustrated Transformer</span><span class="resource-chip">Karpathy's makemore</span></div>
       </div>
-
-      <div class="week-card" style="--card-accent: var(--accent4)">
-        <div class="card-top">
-          <span class="week-num">WEEK 06</span>
-          <span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">LLMs</span>
-        </div>
+      <div class="week-card" id="wcard-6" style="--card-accent:var(--accent4)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 06</span><span class="week-badge" style="background:rgba(197,66,245,0.1);color:var(--accent4)">LLMs</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">LLMs, Fine-Tuning & Prompting</h2>
         <p class="card-desc">Learn to work with large language models — the current frontier.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-6" style="background:var(--accent4)"></div></div><span class="wmp-label" id="wlabel-6">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>Pretraining, RLHF, instruction tuning overview</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>Hugging Face: tokenizers, pipelines, Trainer</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>LoRA & QLoRA fine-tuning on consumer GPU</li>
-          <li><span class="topic-dot" style="background:var(--accent4)"></span>Prompt engineering & RAG</li>
+          <li><input type="checkbox" class="task-cb" data-week="6" data-id="6-1"><span class="topic-text">Pretraining, RLHF, instruction tuning overview</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="6" data-id="6-2"><span class="topic-text">Hugging Face: tokenizers, pipelines, Trainer</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="6" data-id="6-3"><span class="topic-text">LoRA & QLoRA fine-tuning on consumer GPU</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="6" data-id="6-4"><span class="topic-text">Prompt engineering & RAG</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Fine-tune Mistral-7B on a domain Q&A dataset with LoRA</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">Hugging Face course</span>
-          <span class="resource-chip">LangChain docs</span>
-          <span class="resource-chip">Sebastian Raschka</span>
-        </div>
+        <div class="project-box" id="proj-6" onclick="toggleProject(6)"><input type="checkbox" class="task-cb" data-week="6" data-id="6-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Fine-tune Mistral-7B on a domain Q&A dataset with LoRA</p></div></div>
+        <div class="resources-row"><span class="resource-chip">Hugging Face course</span><span class="resource-chip">LangChain docs</span><span class="resource-chip">Sebastian Raschka</span></div>
       </div>
-
     </div>
   </div>
 
-  <!-- PHASE 4 -->
   <div class="phase-group" id="phase-3">
-    <div class="phase-label">
-      <span class="phase-label-text">Phase 04 — MLOps & Production</span>
-      <div class="phase-label-line"></div>
-    </div>
+    <div class="phase-label"><span class="phase-label-text">Phase 04 — MLOps & Production</span><div class="phase-label-line"></div></div>
     <div class="weeks-row">
-
-      <div class="week-card" style="--card-accent: var(--accent3)">
-        <div class="card-top">
-          <span class="week-num">WEEK 07</span>
-          <span class="week-badge" style="background:rgba(245,168,66,0.1);color:var(--accent3)">MLOps</span>
-        </div>
+      <div class="week-card" id="wcard-7" style="--card-accent:var(--accent3)">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 07</span><span class="week-badge" style="background:rgba(245,168,66,0.1);color:var(--accent3)">MLOps</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">MLOps & Model Deployment</h2>
         <p class="card-desc">Production ML differs radically from notebook ML. Learn the gap.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-7" style="background:var(--accent3)"></div></div><span class="wmp-label" id="wlabel-7">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:var(--accent3)"></span>Experiment tracking: MLflow / Weights & Biases</li>
-          <li><span class="topic-dot" style="background:var(--accent3)"></span>Model serving: FastAPI, TorchServe, vLLM</li>
-          <li><span class="topic-dot" style="background:var(--accent3)"></span>Docker + basic Kubernetes for ML workloads</li>
-          <li><span class="topic-dot" style="background:var(--accent3)"></span>Monitoring, drift detection, retraining pipelines</li>
+          <li><input type="checkbox" class="task-cb" data-week="7" data-id="7-1"><span class="topic-text">Experiment tracking: MLflow / Weights & Biases</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="7" data-id="7-2"><span class="topic-text">Model serving: FastAPI, TorchServe, vLLM</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="7" data-id="7-3"><span class="topic-text">Docker + basic Kubernetes for ML workloads</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="7" data-id="7-4"><span class="topic-text">Monitoring, drift detection, retraining pipelines</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">⚡</span>
-          <div>
-            <p class="project-label">Weekly Project</p>
-            <p class="project-text">Deploy your Week 6 model as a REST API with a simple frontend</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">Made With ML</span>
-          <span class="resource-chip">Full Stack Deep Learning</span>
-          <span class="resource-chip">W&B docs</span>
-        </div>
+        <div class="project-box" id="proj-7" onclick="toggleProject(7)"><input type="checkbox" class="task-cb" data-week="7" data-id="7-p" onclick="event.stopPropagation()"><div><p class="project-label">Weekly Project</p><p class="project-text">Deploy your Week 6 model as a REST API with a simple frontend</p></div></div>
+        <div class="resources-row"><span class="resource-chip">Made With ML</span><span class="resource-chip">Full Stack Deep Learning</span><span class="resource-chip">W&B docs</span></div>
       </div>
-
     </div>
   </div>
 
-  <!-- PHASE 5 -->
   <div class="phase-group" id="phase-4">
-    <div class="phase-label">
-      <span class="phase-label-text">Phase 05 — Specialization & Capstone</span>
-      <div class="phase-label-line"></div>
-    </div>
+    <div class="phase-label"><span class="phase-label-text">Phase 05 — Specialization & Capstone</span><div class="phase-label-line"></div></div>
     <div class="weeks-row">
-
-      <div class="week-card" style="--card-accent: #f54242">
-        <div class="card-top">
-          <span class="week-num">WEEK 08</span>
-          <span class="week-badge" style="background:rgba(245,66,66,0.1);color:#f54242">Capstone</span>
-        </div>
+      <div class="week-card" id="wcard-8" style="--card-accent:#f54242">
+        <div class="card-top"><div class="card-top-left"><span class="week-num">WEEK 08</span><span class="week-badge" style="background:rgba(245,66,66,0.1);color:#f54242">Capstone</span><span class="week-done-badge">✓ DONE</span></div></div>
         <h2 class="card-title">Capstone & Specialization</h2>
         <p class="card-desc">Consolidate, publish, and pick your track — research, applied, or product.</p>
+        <div class="week-mini-progress"><div class="wmp-track"><div class="wmp-fill" id="wbar-8" style="background:#f54242"></div></div><span class="wmp-label" id="wlabel-8">0 / 5</span></div>
         <ul class="topics">
-          <li><span class="topic-dot" style="background:#f54242"></span>Choose a track: generative AI / CV / RL / AI safety</li>
-          <li><span class="topic-dot" style="background:#f54242"></span>Polish 2–3 projects for GitHub + write-ups</li>
-          <li><span class="topic-dot" style="background:#f54242"></span>Kaggle competition or open-source contribution</li>
-          <li><span class="topic-dot" style="background:#f54242"></span>Read 3 seminal papers in your chosen area</li>
+          <li><input type="checkbox" class="task-cb" data-week="8" data-id="8-1"><span class="topic-text">Choose a track: generative AI / CV / RL / AI safety</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="8" data-id="8-2"><span class="topic-text">Polish 2–3 projects for GitHub + write-ups</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="8" data-id="8-3"><span class="topic-text">Kaggle competition or open-source contribution</span></li>
+          <li><input type="checkbox" class="task-cb" data-week="8" data-id="8-4"><span class="topic-text">Read 3 seminal papers in your chosen area</span></li>
         </ul>
-        <div class="project-box">
-          <span class="project-icon">🏆</span>
-          <div>
-            <p class="project-label">Capstone Project</p>
-            <p class="project-text">A project you'd be proud to show in interviews</p>
-          </div>
-        </div>
-        <div class="resources-row">
-          <span class="resource-chip">arXiv cs.LG / cs.CL</span>
-          <span class="resource-chip">Kaggle</span>
-          <span class="resource-chip">Papers With Code</span>
-        </div>
+        <div class="project-box" id="proj-8" onclick="toggleProject(8)"><input type="checkbox" class="task-cb" data-week="8" data-id="8-p" onclick="event.stopPropagation()"><div><p class="project-label">Capstone Project</p><p class="project-text">A project you'd be proud to show in interviews</p></div></div>
+        <div class="resources-row"><span class="resource-chip">arXiv cs.LG / cs.CL</span><span class="resource-chip">Kaggle</span><span class="resource-chip">Papers With Code</span></div>
       </div>
-
     </div>
   </div>
 
 </section>
 
-<!-- TIMELINE -->
 <section class="timeline-section" id="timeline">
-  <div class="section-heading">
-    <h2>Weekly timeline</h2>
-    <p>How to structure each week for maximum retention</p>
-  </div>
+  <div class="section-heading"><h2>Weekly timeline</h2><p>How to structure each week for maximum retention</p></div>
   <div class="timeline">
-    <div class="timeline-item">
-      <div class="tl-dot" style="border-color:var(--accent);color:var(--accent)">M</div>
-      <div class="tl-content">
-        <p class="tl-title">Monday — Concepts</p>
-        <p class="tl-desc">Watch lectures, read the theory. No coding yet. Take handwritten notes.</p>
-      </div>
-    </div>
-    <div class="timeline-item">
-      <div class="tl-dot" style="border-color:var(--accent2);color:var(--accent2)">T</div>
-      <div class="tl-content">
-        <p class="tl-title">Tuesday — Implement</p>
-        <p class="tl-desc">Code the core algorithm from scratch. Resist using high-level wrappers.</p>
-      </div>
-    </div>
-    <div class="timeline-item">
-      <div class="tl-dot" style="border-color:var(--accent4);color:var(--accent4)">W</div>
-      <div class="tl-content">
-        <p class="tl-title">Wednesday — Experiment</p>
-        <p class="tl-desc">Break things. Change hyperparams, swap architectures, read error messages.</p>
-      </div>
-    </div>
-    <div class="timeline-item">
-      <div class="tl-dot" style="border-color:var(--accent3);color:var(--accent3)">T</div>
-      <div class="tl-content">
-        <p class="tl-title">Thursday — Paper</p>
-        <p class="tl-desc">Read one seminal paper related to the week's topic. Even 60% comprehension compounds fast.</p>
-      </div>
-    </div>
-    <div class="timeline-item">
-      <div class="tl-dot">F</div>
-      <div class="tl-content">
-        <p class="tl-title">Friday — Project</p>
-        <p class="tl-desc">Complete the week's project. Push to GitHub. Write a one-paragraph summary.</p>
-      </div>
-    </div>
-    <div class="timeline-item">
-      <div class="tl-dot">S</div>
-      <div class="tl-content">
-        <p class="tl-title">Weekend — Review & explore</p>
-        <p class="tl-desc">Catch up on anything missed. Browse arXiv, watch a talk, or start the next week's pre-reading.</p>
-      </div>
-    </div>
+    <div class="timeline-item"><div class="tl-dot" style="border-color:var(--accent);color:var(--accent)">M</div><div class="tl-content"><p class="tl-title">Monday — Concepts</p><p class="tl-desc">Watch lectures, read the theory. No coding yet. Take handwritten notes.</p></div></div>
+    <div class="timeline-item"><div class="tl-dot" style="border-color:var(--accent2);color:var(--accent2)">T</div><div class="tl-content"><p class="tl-title">Tuesday — Implement</p><p class="tl-desc">Code the core algorithm from scratch. Resist using high-level wrappers.</p></div></div>
+    <div class="timeline-item"><div class="tl-dot" style="border-color:var(--accent4);color:var(--accent4)">W</div><div class="tl-content"><p class="tl-title">Wednesday — Experiment</p><p class="tl-desc">Break things. Change hyperparams, swap architectures, read error messages.</p></div></div>
+    <div class="timeline-item"><div class="tl-dot" style="border-color:var(--accent3);color:var(--accent3)">T</div><div class="tl-content"><p class="tl-title">Thursday — Paper</p><p class="tl-desc">Read one seminal paper related to the week's topic. Even 60% comprehension compounds fast.</p></div></div>
+    <div class="timeline-item"><div class="tl-dot">F</div><div class="tl-content"><p class="tl-title">Friday — Project</p><p class="tl-desc">Complete the week's project. Push to GitHub. Write a one-paragraph summary.</p></div></div>
+    <div class="timeline-item"><div class="tl-dot">S</div><div class="tl-content"><p class="tl-title">Weekend — Review & explore</p><p class="tl-desc">Catch up on anything missed. Browse arXiv, watch a talk, or start the next week's pre-reading.</p></div></div>
   </div>
 </section>
 
-<!-- HOSTING -->
-<section class="weeks-section" id="hosting">
-  <div class="section-heading" style="text-align:left; margin-bottom: 2rem;">
-    <h2 style="font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);color:var(--text);margin-bottom:0.5rem">Host this site</h2>
-    <p style="font-size:14px;color:var(--muted)">Three ways to get it live in minutes</p>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+<footer><p>Built for CS graduates ready to go deep on AI. <span>Good luck.</span></p></footer>
 
-    <div style="background:var(--surface);padding:2rem;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:0.15em;margin-bottom:1rem">EASIEST · FREE</div>
-      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">GitHub Pages</h3>
-      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Push to a repo, enable Pages in settings. Done. Custom domain support included.</p>
-      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent2);line-height:2">
-        git init<br>
-        git add index.html<br>
-        git commit -m "init"<br>
-        git push origin main
-      </div>
-    </div>
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-    <div style="background:var(--surface);padding:2rem;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--accent3);letter-spacing:0.15em;margin-bottom:1rem">FASTEST · FREE</div>
-      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">Netlify Drop</h3>
-      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Drag and drop the folder at netlify.com/drop. Live URL in under 10 seconds. No account needed.</p>
-      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent3);line-height:2">
-        1. Go to netlify.com/drop<br>
-        2. Drag your folder<br>
-        3. Copy the live URL
-      </div>
-    </div>
+// ═══════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════
+const TOTAL_WEEKS = 8;
+const TASKS_PER_WEEK = 5;
+const WEEK_COLORS = ['#42c8f5','#42c8f5','#c8f542','#c8f542','#c542f5','#c542f5','#f5a842','#f54242'];
+const CFG_KEY = 'ai_roadmap_firebase_cfg';
+const OFFLINE_KEY = 'ai_roadmap_offline';
 
-    <div style="background:var(--surface);padding:2rem;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--accent4);letter-spacing:0.15em;margin-bottom:1rem">BEST DX · FREE TIER</div>
-      <h3 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem">Vercel CLI</h3>
-      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Deploy from terminal with one command. Auto HTTPS, global CDN, preview URLs on every push.</p>
-      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--accent4);line-height:2">
-        npm i -g vercel<br>
-        vercel login<br>
-        vercel --prod
-      </div>
-    </div>
+let app, auth, db, currentUid;
+let saveTimer = null;
+let offlineMode = false;
 
-  </div>
-</section>
+// ═══════════════════════════════════════
+//  FIREBASE SETUP
+// ═══════════════════════════════════════
+function loadSavedConfig() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)); } catch { return null; }
+}
 
-<footer>
-  <p>Built for CS graduates ready to go deep on AI. <span>Good luck.</span></p>
-</footer>
-
-<script>
-  function scrollToPhase(id) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+window.saveFirebaseConfig = async function() {
+  const cfg = {
+    apiKey:     document.getElementById('cfg-apikey').value.trim(),
+    authDomain: document.getElementById('cfg-authdomain').value.trim(),
+    projectId:  document.getElementById('cfg-projectid').value.trim(),
+    appId:      document.getElementById('cfg-appid').value.trim(),
+    storageBucket: document.getElementById('cfg-projectid').value.trim() + '.appspot.com',
+    messagingSenderId: '000000000000',
+  };
+  if (!cfg.apiKey || !cfg.authDomain || !cfg.projectId || !cfg.appId) {
+    alert('Please fill in all four fields.'); return;
   }
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  document.getElementById('setup-overlay').style.display = 'none';
+  await bootFirebase(cfg);
+};
 
-  // Sticky phases bar highlight on scroll
-  const groups = document.querySelectorAll('.phase-group');
-  const tabs = document.querySelectorAll('.phase-tab');
+window.skipToDemo = function() {
+  offlineMode = true;
+  document.getElementById('setup-overlay').style.display = 'none';
+  bootOffline();
+};
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const idx = Array.from(groups).indexOf(entry.target);
-        tabs.forEach(t => t.classList.remove('active'));
-        if (tabs[idx]) tabs[idx].classList.add('active');
+async function bootFirebase(cfg) {
+  try {
+    app  = initializeApp(cfg);
+    auth = getAuth(app);
+    db   = getFirestore(app);
+
+    document.getElementById('auth-overlay').classList.add('active');
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        currentUid = user.uid;
+        document.getElementById('auth-overlay').classList.remove('active');
+        renderNavUser(user);
+        document.getElementById('signout-btn').style.display = 'block';
+        await loadUserProgress(user.uid);
+        listenUserProgress(user.uid);
+        buildHeroWeekBars();
+        updateAllWeeks();
+        updateGlobal();
       }
     });
-  }, { threshold: 0.3 });
+  } catch(e) {
+    alert('Firebase init error: ' + e.message);
+  }
+}
 
-  groups.forEach(g => observer.observe(g));
+function bootOffline() {
+  renderNavUser(null);
+  buildHeroWeekBars();
+  updateAllWeeks();
+  updateGlobal();
+  attachCheckboxListeners();
+}
+
+// ═══════════════════════════════════════
+//  AUTH ACTIONS
+// ═══════════════════════════════════════
+window.signInGoogle = async function() {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch(e) { showAuthMsg(e.message, 'error'); }
+};
+
+window.signInEmail = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw    = document.getElementById('auth-password').value;
+  if (!email || !pw) { showAuthMsg('Enter email and password.', 'error'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+  } catch(e) {
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
+      try {
+        await createUserWithEmailAndPassword(auth, email, pw);
+      } catch(e2) { showAuthMsg(e2.message, 'error'); }
+    } else { showAuthMsg(e.message, 'error'); }
+  }
+};
+
+window.signOut = async function() {
+  if (auth) await fbSignOut(auth);
+  currentUid = null;
+  document.getElementById('auth-overlay').classList.add('active');
+  document.getElementById('signout-btn').style.display = 'none';
+  clearProgress();
+};
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('auth-msg');
+  el.textContent = msg;
+  el.className = 'auth-msg ' + type;
+}
+
+// ═══════════════════════════════════════
+//  FIRESTORE PROGRESS
+// ═══════════════════════════════════════
+let progressData = {};
+
+async function loadUserProgress(uid) {
+  try {
+    const snap = await getDoc(doc(db, 'progress', uid));
+    if (snap.exists()) progressData = snap.data().tasks || {};
+    else progressData = {};
+    restoreCheckboxes();
+    attachCheckboxListeners();
+  } catch(e) { console.warn('load error', e); }
+}
+
+function listenUserProgress(uid) {
+  onSnapshot(doc(db, 'progress', uid), snap => {
+    if (snap.exists()) {
+      progressData = snap.data().tasks || {};
+      restoreCheckboxes();
+      updateAllWeeks();
+      updateGlobal();
+    }
+  });
+}
+
+async function saveProgress() {
+  showSyncStatus('saving');
+  try {
+    if (!offlineMode && db && currentUid) {
+      await setDoc(doc(db, 'progress', currentUid), { tasks: progressData, updatedAt: Date.now() }, { merge: true });
+    } else {
+      localStorage.setItem(OFFLINE_KEY, JSON.stringify(progressData));
+    }
+    showSyncStatus('saved');
+  } catch(e) { console.warn('save error', e); }
+}
+
+function debounceSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProgress, 800);
+}
+
+function getOfflineProgress() {
+  try { return JSON.parse(localStorage.getItem(OFFLINE_KEY)) || {}; } catch { return {}; }
+}
+
+// ═══════════════════════════════════════
+//  NAV USER
+// ═══════════════════════════════════════
+function renderNavUser(user) {
+  const wrap = document.getElementById('nav-avatar-wrap');
+  const nameEl = document.getElementById('nav-name');
+  if (!user) {
+    wrap.innerHTML = '<div class="nav-avatar-initials">ME</div>';
+    nameEl.innerHTML = 'Offline mode';
+    return;
+  }
+  if (user.photoURL) {
+    wrap.innerHTML = `<div class="nav-avatar"><img src="${user.photoURL}" referrerpolicy="no-referrer"></div>`;
+  } else {
+    const initials = (user.displayName || user.email || 'U').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    wrap.innerHTML = `<div class="nav-avatar-initials">${initials}</div>`;
+  }
+  const name = user.displayName || user.email?.split('@')[0] || 'You';
+  nameEl.innerHTML = `<span>${name}</span>`;
+}
+
+// ═══════════════════════════════════════
+//  SYNC STATUS
+// ═══════════════════════════════════════
+let syncTimer;
+function showSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  const text = document.getElementById('sync-text');
+  clearTimeout(syncTimer);
+  el.className = 'sync-status show ' + state;
+  text.textContent = state === 'saving' ? 'Saving…' : 'Saved ✓';
+  if (state === 'saved') syncTimer = setTimeout(() => el.className = 'sync-status', 2000);
+}
+
+// ═══════════════════════════════════════
+//  PROGRESS LOGIC
+// ═══════════════════════════════════════
+function getWeekDone(w) {
+  let done = 0;
+  for (let i = 1; i <= 4; i++) if (progressData[`${w}-${i}`]) done++;
+  if (progressData[`${w}-p`]) done++;
+  return done;
+}
+
+function updateWeek(w) {
+  const done = getWeekDone(w);
+  const pct = Math.round((done / TASKS_PER_WEEK) * 100);
+  const bar = document.getElementById('wbar-' + w);
+  const label = document.getElementById('wlabel-' + w);
+  const card = document.getElementById('wcard-' + w);
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = `${done} / ${TASKS_PER_WEEK}`;
+  if (card) card.classList.toggle('completed', done === TASKS_PER_WEEK);
+}
+
+function updateAllWeeks() { for (let w = 1; w <= TOTAL_WEEKS; w++) updateWeek(w); }
+
+function updateGlobal() {
+  let total = 0;
+  for (let w = 1; w <= TOTAL_WEEKS; w++) total += getWeekDone(w);
+  const pct = Math.round((total / (TOTAL_WEEKS * TASKS_PER_WEEK)) * 100);
+  document.getElementById('nav-fill').style.width = pct + '%';
+  document.getElementById('nav-pct').textContent = pct + '%';
+  document.getElementById('hero-ring').style.strokeDashoffset = 283 - (283 * pct / 100);
+  document.getElementById('hero-pct').textContent = pct + '%';
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    const d = getWeekDone(w);
+    const b = document.getElementById('hbar-' + w);
+    const c = document.getElementById('hcount-' + w);
+    if (b) b.style.width = Math.round((d / TASKS_PER_WEEK) * 100) + '%';
+    if (c) c.textContent = `${d}/5`;
+  }
+}
+
+function restoreCheckboxes() {
+  document.querySelectorAll('.task-cb').forEach(cb => {
+    const id = cb.dataset.id;
+    cb.checked = !!progressData[id];
+    cb.closest('li')?.classList.toggle('checked', !!progressData[id]);
+  });
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    document.getElementById('proj-' + w)?.classList.toggle('proj-done', !!progressData[`${w}-p`]);
+  }
+}
+
+function clearProgress() {
+  progressData = {};
+  restoreCheckboxes();
+  updateAllWeeks();
+  updateGlobal();
+}
+
+function attachCheckboxListeners() {
+  document.querySelectorAll('.task-cb').forEach(cb => {
+    cb.removeEventListener('change', onCheck);
+    cb.addEventListener('change', onCheck);
+  });
+}
+
+function onCheck(e) {
+  const cb = e.target;
+  const id = cb.dataset.id;
+  const week = parseInt(cb.dataset.week);
+  if (cb.checked) progressData[id] = true; else delete progressData[id];
+  cb.closest('li')?.classList.toggle('checked', cb.checked);
+  updateWeek(week);
+  updateGlobal();
+  debounceSave();
+}
+
+window.toggleProject = function(w) {
+  const cb = document.querySelector(`[data-id="${w}-p"]`);
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  if (cb.checked) progressData[`${w}-p`] = true; else delete progressData[`${w}-p`];
+  document.getElementById('proj-' + w)?.classList.toggle('proj-done', cb.checked);
+  updateWeek(w);
+  updateGlobal();
+  debounceSave();
+};
+
+window.resetAll = function() {
+  if (!confirm('Reset all your progress? This cannot be undone.')) return;
+  progressData = {};
+  restoreCheckboxes();
+  updateAllWeeks();
+  updateGlobal();
+  saveProgress();
+};
+
+function buildHeroWeekBars() {
+  const container = document.getElementById('hero-week-bars');
+  let html = '';
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    html += `<div class="week-stat-row">
+      <span class="wsr-label">WK 0${w}</span>
+      <div class="wsr-bar-track"><div class="wsr-bar-fill" id="hbar-${w}" style="background:${WEEK_COLORS[w-1]}"></div></div>
+      <span class="wsr-count" id="hcount-${w}">0/5</span>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+//  PHASE NAV
+// ═══════════════════════════════════════
+window.scrollToPhase = function(id, event) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+  if (event) event.target.classList.add('active');
+};
+
+new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(document.querySelectorAll('.phase-group')).indexOf(entry.target);
+      document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.phase-tab')[idx]?.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 }).observe(...[...document.querySelectorAll('.phase-group')]);
+
+// ═══════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════
+const saved = loadSavedConfig();
+if (saved) {
+  document.getElementById('setup-overlay').style.display = 'none';
+  bootFirebase(saved);
+} else {
+  // Pre-fill if user partially filled before
+  const prev = loadSavedConfig();
+  if (prev) {
+    document.getElementById('cfg-apikey').value    = prev.apiKey || '';
+    document.getElementById('cfg-authdomain').value = prev.authDomain || '';
+    document.getElementById('cfg-projectid').value  = prev.projectId || '';
+    document.getElementById('cfg-appid').value      = prev.appId || '';
+  }
+}
 </script>
-
 </body>
 </html>
